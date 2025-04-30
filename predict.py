@@ -118,27 +118,23 @@ class Predictor(BasePredictor):
         if os.path.exists(output_file):
             os.remove(output_file)
 
-        if args.face.split(".")[1] in ["jpg", "png", "jpeg"]:
-            full_frames = [cv2.imread(args.face)]
-            args.static = True
-            fps = args.fps
-        else:
-            video_stream = cv2.VideoCapture(args.face)
-            fps = video_stream.get(cv2.CAP_PROP_FPS)
-            full_frames = []
-            while True:
-                still_reading, frame = video_stream.read()
-                if not still_reading:
-                    video_stream.release()
-                    break
-                y1, y2, x1, x2 = args.crop
-                if x2 == -1:
-                    x2 = frame.shape[1]
-                if y2 == -1:
-                    y2 = frame.shape[0]
-                frame = frame[y1:y2, x1:x2]
-                full_frames.append(frame)
-            video_stream.release()
+        print("FACE", args.face)
+        video_stream = cv2.VideoCapture(args.face)
+        fps = video_stream.get(cv2.CAP_PROP_FPS)
+        full_frames = []
+        while True:
+            still_reading, frame = video_stream.read()
+            if not still_reading:
+                video_stream.release()
+                break
+            y1, y2, x1, x2 = args.crop
+            if x2 == -1:
+                x2 = frame.shape[1]
+            if y2 == -1:
+                y2 = frame.shape[0]
+            frame = frame[y1:y2, x1:x2]
+            full_frames.append(frame)
+        video_stream.release()
 
         full_frames_RGB = [
             cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in full_frames
